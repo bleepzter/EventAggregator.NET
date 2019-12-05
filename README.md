@@ -1,12 +1,15 @@
 # EventAggregator.NET
+
 An in-memory publish-subscribe messaging pattern used for inter-component communication.
 
 ## Usage
 
 ### Event / Message Publisher
+
 A publisher needs to get a reference to the event aggregator in order to be able to publish messages through it.
 
 ### Event / Message Consumer
+
 A consumer needs to implement `IEventSubscriber<T>` where T represents the type of message it is listening for.
 The `IEventSubscriber<T>` interface forces a subscriber to implement a message handler when the message is received. 
 The method signature of the handler takes in a single parameter of type T (where T represents the message type):
@@ -16,7 +19,12 @@ The method signature of the handler takes in a single parameter of type T (where
 Multiple subscriptions for different messages are possible as each implementation of the `OnAggregateEvent(T message)` message
 handler become overloads of each other.
 
-### Example
+### Example - Message Definitions
+
+Messages can be any POCO/CLR/DTO (or whatever you want to call them) objects. 
+Keep in mind that messages are not immutable and are passed by reference. That means if a handler modifies it,
+the next handler that receives it will see the modified changes and not necessary the original message.
+
 
 ```csharp
  
@@ -33,7 +41,16 @@ handler become overloads of each other.
  public class MessageType2 { 
     ...
  }
+ 
+```
 
+### Example - Event/Message Publisher
+
+A publisher simply needs to call the `Publish(T message)` method of the event aggregator to send an event/message to 
+listening consumers. So long as the consumers implement the `IEventSubscriber<T>` interface for the message type they should
+be able to receive the message.
+
+```csharp
 
  /// <summary>
  /// Represents a single publisher.
@@ -91,8 +108,18 @@ handler become overloads of each other.
       this.eventAggregator.Publish(new MessageType2());
     
     }
- } 
+ }
  
+```
+
+### Example - Event/Message Subscriber
+
+A subscriber needs to implement an `IEventSubscriber<T>` interface for the message type they want to listen to.
+In this example the subscriber listens to messages from both publishers defined above.
+
+
+```csharp
+
  /// <summary>
  /// Represents a subscriber that listens to message types from both publishers.
  /// </summary>
@@ -113,3 +140,5 @@ handler become overloads of each other.
       ...
     }
  }
+ 
+```
