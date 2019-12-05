@@ -4,6 +4,25 @@ An in-memory publish-subscribe messaging pattern used for inter-component commun
 
 ## Usage
 
+Similar to a message queue which decouples application boundaries, the EventAggregator decuples 
+component/service boundaries within an application. This pattern is particularly useful when there is a need to decouple 
+components and facilitate communication between them without them being aware of each other's existence within the application.
+
+This is particularly useful for desktop UI applications where parts of the UI need to update/respond to events happening in
+another part of the application.
+
+Another particularly useful scenario is when application services need to communicate with each other. In this scenario services
+will either respond to each other's events (which may cause memory leaks if the event subscriptions are not properly managed) or
+call each other's methods by means of composition. 
+
+In other words `Service A` will contain a reference to `Service B` and vice versa so they can either subscribe to each other's events
+or call each other's methods. In either cases we may run into memory leaks because the services will hang on to each other and
+depending on their lifetimes - may never get disposed. Nevermind the issue of composing their object graphs.
+
+So the Event Aggregator helps facilitate that inter-component communication and decoupling of such, without introducing memory leaks.
+This is because the underlying mechanism of the event subscription uses reflection and `WeakReferences` to keep track of subscribers
+that may or may not have been disposed.
+
 ### Event / Message Publisher
 
 A publisher needs to get a reference to the event aggregator in order to be able to publish messages through it.
